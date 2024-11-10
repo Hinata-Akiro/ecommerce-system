@@ -84,6 +84,9 @@ Each service includes unit tests and e2e tests:
 # Unit tests
 yarn test
 
+# Integration tests
+yarn test:integration
+
 # E2E tests
 yarn test:e2e
 

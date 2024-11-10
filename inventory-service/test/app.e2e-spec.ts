@@ -9,10 +9,17 @@ describe('AppController (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider('RABBITMQ_SERVICE')
+      .useValue({ connect: jest.fn() })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
+  }, 30000);
+
+  afterEach(async () => {
+    await app.close();
   });
 
   it('/ (GET)', () => {
