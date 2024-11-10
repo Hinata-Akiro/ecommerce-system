@@ -1,0 +1,6 @@
+[submodule "inventory-service"]
+	path = inventory-service
+	url = https://github.com/Hinata-Akiro/inventory-service.git
+[submodule "order-service"]
+	path = order-service
+	url = https://github.com/Hinata-Akiro/order-service.git
