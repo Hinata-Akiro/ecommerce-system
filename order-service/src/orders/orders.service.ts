@@ -21,6 +21,13 @@ export class OrderService {
     private readonly elasticLogger: ElasticsearchLoggerService,
   ) {}
 
+  /**
+   * Creates a new order with stock validation and deduction
+   * @param {CreateOrderDto} createOrderDto - The order creation data
+   * @throws {HttpException} When stock check fails or insufficient stock
+   * @throws {HttpException} When order processing fails
+   * @returns {Promise<Order>} Created and confirmed order
+   */
   async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
     try {
       // Check stock availability
@@ -127,6 +134,12 @@ export class OrderService {
     }
   }
 
+  /**
+   * Retrieves an order by its ID
+   * @param {string} orderId - The order identifier
+   * @throws {HttpException} When order is not found
+   * @returns {Promise<Order>} The found order
+   */
   async getOrder(orderId: string): Promise<Order> {
     try {
       const order = await this.orderRepository.findOrderById(orderId);
@@ -143,6 +156,11 @@ export class OrderService {
     }
   }
 
+  /**
+   * Handles stock update events from the inventory service
+   * @param {StockUpdateEvent} event - The stock update event details
+   * @returns {Promise<void>}
+   */
   async handleStockUpdate(event: StockUpdateEvent): Promise<void> {
     try {
       await this.elasticLogger.logOrderEvent(

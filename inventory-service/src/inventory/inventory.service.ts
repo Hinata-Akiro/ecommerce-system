@@ -12,6 +12,7 @@ import { InventoryRepository } from './inventory.repository';
 import { ElasticsearchLoggerService } from './logging/elasticsearch-logger.service';
 import { RabbitMQService } from '../rabbitmq/rabbitmq.service';
 import { RabbitMQExchanges } from '../rabbitmq/rabbitmq.types';
+import { Inventory } from './schemas/inventory.schema';
 
 @Injectable()
 export class InventoryService {
@@ -21,6 +22,11 @@ export class InventoryService {
     private readonly rabbitMQService: RabbitMQService,
   ) {}
 
+  /**
+   * Generates a random product code with 'INV-' prefix
+   * @private
+   * @returns {string} Generated product code
+   */
   private generateProductCode(): string {
     const prefix = 'INV-';
     const randomNum = Math.floor(Math.random() * 1000000000)
@@ -29,6 +35,10 @@ export class InventoryService {
     return `${prefix}${randomNum}`;
   }
 
+  /**
+   * Generates a unique product code by checking against existing codes
+   * @returns {Promise<string>} Unique product code
+   */
   async generateUniqueProductCode(): Promise<string> {
     let productCode: string;
     let isUnique = false;
@@ -44,7 +54,13 @@ export class InventoryService {
     return productCode;
   }
 
-  async createItem(createDto: CreateInventoryDto) {
+  /**
+   * Creates a new inventory item
+   * @param {CreateInventoryDto} createDto - The inventory item data
+   * @throws {ConflictException} When product code already exists
+   * @returns {Promise<Inventory>} Created inventory item
+   */
+  async createItem(createDto: CreateInventoryDto): Promise<Inventory> {
     if (!createDto.productCode) {
       createDto.productCode = await this.generateUniqueProductCode();
     } else {
@@ -75,7 +91,14 @@ export class InventoryService {
     return savedItem;
   }
 
-  async updateStock(productCode: string, quantity: number) {
+  /**
+   * Updates the stock quantity of an inventory item
+   * @param {string} productCode - Product identifier
+   * @param {number} quantity - New quantity value
+   * @throws {NotFoundException} When item is not found
+   * @returns {Promise<Inventory>} Updated inventory item
+   */
+  async updateStock(productCode: string, quantity: number): Promise<Inventory> {
     const item = await this.inventoryRepository.findItemById(productCode);
     if (!item) {
       throw new NotFoundException('Item not found');
@@ -111,6 +134,12 @@ export class InventoryService {
     return updatedItem;
   }
 
+  /**
+   * Publishes a stock update event to message queue
+   * @param {StockUpdateEvent} event - Stock update event details
+   * @throws {Error} When publishing fails
+   * @returns {Promise<void>}
+   */
   private async publishStockUpdateEvent(
     event: StockUpdateEvent,
   ): Promise<void> {
@@ -134,6 +163,12 @@ export class InventoryService {
     }
   }
 
+  /**
+   * Retrieves an inventory item by product code
+   * @param {string} productCode - Product identifier
+   * @throws {NotFoundException} When item is not found
+   * @returns {Promise<any>} Inventory item
+   */
   async getItem(productCode: string) {
     const item = await this.inventoryRepository.findItemById(productCode);
     if (!item) {
@@ -146,6 +181,12 @@ export class InventoryService {
     return item;
   }
 
+  /**
+   * Checks if requested quantity is available in stock
+   * @param {string} productCode - Product identifier
+   * @param {number} quantity - Requested quantity
+   * @returns {Promise<{available: boolean, message: string, currentStock: number}>} Stock availability status
+   */
   async checkStock(
     productCode: string,
     quantity: number,
@@ -178,6 +219,14 @@ export class InventoryService {
     };
   }
 
+  /**
+   * Deducts quantity from inventory stock
+   * @param {string} productCode - Product identifier
+   * @param {number} quantity - Quantity to deduct
+   * @throws {NotFoundException} When item is not found
+   * @throws {Error} When insufficient stock
+   * @returns {Promise<void>}
+   */
   async deductStock(productCode: string, quantity: number): Promise<void> {
     const inventory = await this.getItem(productCode);
 
