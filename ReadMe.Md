@@ -160,12 +160,5 @@ The system uses Docker Compose for orchestration with the following services:
 This project is licensed under the MIT License - see the LICENSE file for details.
 ```
 
-This README.md is based on your codebase structure, particularly:
-
-- Docker Compose configuration (```yaml:ecommerce-system/docker-compose.yml```)
-- Service configurations (Inventory and Order services)
-- Test setups (```typescript:ecommerce-system/inventory-service/test/app.e2e-spec.ts``` and ```typescript:ecommerce-system/order-service/test/app.e2e-spec.ts```)
-- Service architectures (```typescript:ecommerce-system/inventory-service/src/inventory/inventory.module.ts``` and similar files)
-
 
 
