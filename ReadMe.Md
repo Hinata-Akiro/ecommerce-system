@@ -158,7 +158,6 @@ The system uses Docker Compose for orchestration with the following services:
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-```
 
 
 
