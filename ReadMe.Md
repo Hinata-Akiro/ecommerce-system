@@ -98,7 +98,6 @@ yarn test:cov
 
 1. **Domain-Driven Design (DDD)**
    - Clear separation of domains (Inventory and Orders)
-   - Rich domain models with encapsulated business logic
    - Use of repositories for data access abstraction
 
 2. **Event-Driven Architecture**
